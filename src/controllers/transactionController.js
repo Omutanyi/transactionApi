@@ -18,7 +18,10 @@ exports.sendTransaction = async (req, res) => {
   try {
     const transaction = await transactionService.createTransaction(req.user.id, recipient_id, amount, currency, type);
     // Trigger webhook
-    await axios.post('https://usewebhook.com/146d51b59f3525bac3b551b2d11f1435', { transaction });
+    const webhookUrl = process.env.WEBHOOK_URL;
+    if (webhookUrl) {
+      await axios.post(webhookUrl, { transaction });
+    }
     res.status(201).json({ message: 'Transaction sent', transaction });
   } catch (err) {
     res.status(500).json({ error: 'Failed to send transaction' });
